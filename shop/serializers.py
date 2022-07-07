@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Partner
+from .models import Product, Partner, Review
 
 
 class ShopSerializers(serializers.ModelSerializer):
@@ -39,8 +39,19 @@ class FilterNameSerializers(serializers.ModelSerializer):
         model = Product
         fields = ('id', 'title', 'image')
 
-#
-# class PartnerSerializers(serializers.ModelSerializer):
-#     class Meta:
-#         model = Partner
-#         fields = ('id', 'image',)
+
+class PartnerSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = Partner
+        fields = ('place', 'poster',)
+
+
+class ReviewSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = Review
+        fields = ('place', 'name', 'text', 'grade', 'video')
+
+
+

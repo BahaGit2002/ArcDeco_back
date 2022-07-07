@@ -41,6 +41,7 @@ class Product(models.Model):
 class Partner(models.Model):
     title = models.CharField(max_length=100)
     poster = models.ImageField(upload_to='partner', blank=True)
+    place = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = 'Партнер'
@@ -49,3 +50,19 @@ class Partner(models.Model):
     def __str__(self):
         return self.title
 
+
+class Review(models.Model):
+    name = models.CharField(max_length=100)
+    text = models.TextField(max_length=1000)
+    grade = models.CharField(max_length=100)
+    video = models.FileField(upload_to='review', null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    uploded = models.DateTimeField(auto_now=True)
+    place = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+
+    def __str__(self):
+        return self.name

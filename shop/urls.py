@@ -1,4 +1,4 @@
-from .views import ShopView, ProductDetailView, ContactView, MessageView, FilterNameView
+from .views import ShopView, ProductDetailView, ContactView, MessageView, FilterNameView, PartnerView, ReviewView
 from django.urls import path
 
 
@@ -8,5 +8,7 @@ urlpatterns = [
     path('contact/', ContactView.as_view(), name='contact'),
     path('message/', MessageView.as_view(), name='message'),
     path('title-search/<str:title>/', FilterNameView.as_view(), name='titlesearch'),
+    path('partner/', PartnerView.as_view(), name='partner'),
+    path('review/', ReviewView.as_view(), name='review'),
 ]
 

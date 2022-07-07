@@ -1,11 +1,9 @@
-from django.shortcuts import redirect
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView, CreateAPIView
+from rest_framework.generics import GenericAPIView
 from .service import PaginatorShop
 from .telepot import send_message
-from rest_framework import filters
-from .models import Product
-from .serializers import ShopSerializers, ProductDetailSerializers, ContactSerializers, MessageSerializers, FilterNameSerializers, PartnerSerializers
+from .models import Product, Partner, Review
+from .serializers import ShopSerializers, ProductDetailSerializers, ContactSerializers, MessageSerializers, FilterNameSerializers, PartnerSerializers, ReviewSerializers
 
 
 class ShopView(GenericAPIView):
@@ -57,11 +55,25 @@ class FilterNameView(GenericAPIView):
         return Response(serializer.data)
 
 
-# class PartnerView(GenericAPIView):
-#     serializer_class = PartnerSerializers
-#
-#     def get(self, request):
+class PartnerView(GenericAPIView):
+    serializer_class = PartnerSerializers
 
+    def get(self, request):
+        partner = Partner.objects.all().order_by('place')
+        print(partner)
+        serializer = PartnerSerializers(partner, many=True)
+        print(serializer.data)
+        return Response(serializer.data)
+
+
+class ReviewView(GenericAPIView):
+    serializer_class = ReviewSerializers
+
+    def get(self, request):
+        review = Review.objects.all().order_by('place')
+        # print(review)
+        serializer = ReviewSerializers(review, many=True)
+        return Response(serializer.data)
 
 
 class ContactView(GenericAPIView):
