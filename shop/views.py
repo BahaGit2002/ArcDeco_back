@@ -1,9 +1,11 @@
+from django.db.models import Avg
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from .service import PaginatorShop
 from .telepot import send_message
 from .models import Product, Partner, Review
-from .serializers import ShopSerializers, ProductDetailSerializers, ContactSerializers, MessageSerializers, FilterNameSerializers, PartnerSerializers, ReviewSerializers
+from .serializers import ShopSerializers, ProductDetailSerializers, ContactSerializers, MessageSerializers, \
+    FilterNameSerializers, PartnerSerializers, ReviewSerializers
 
 
 class ShopView(GenericAPIView):
@@ -70,9 +72,14 @@ class ReviewView(GenericAPIView):
     serializer_class = ReviewSerializers
 
     def get(self, request):
-        review = Review.objects.all().order_by('place')
-        # print(review)
+        review = Review.objects.order_by('place')
+        # review['grade'] = review['grade__avg
+
         serializer = ReviewSerializers(review, many=True)
+        # serializer1 = ReviewGradeSerializers(data=serializer.data)
+        # if serializer1.is_valid():
+        #     pass
+        # print(serializer1.data)
         return Response(serializer.data)
 
 

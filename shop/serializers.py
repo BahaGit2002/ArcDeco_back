@@ -17,6 +17,7 @@ class ProductDetailSerializers(serializers.ModelSerializer):
 
 
 class ContactSerializers(serializers.Serializer):
+
     name = serializers.CharField(max_length=100)
     phone_number = serializers.CharField(max_length=100)
 
@@ -25,6 +26,7 @@ class ContactSerializers(serializers.Serializer):
 
 
 class MessageSerializers(serializers.Serializer):
+
     name = serializers.CharField(max_length=100)
     phone_number = serializers.CharField(max_length=100)
     text = serializers.CharField(max_length=1000)
@@ -51,7 +53,9 @@ class ReviewSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ('place', 'name', 'text', 'grade', 'video')
+        fields = ('place', 'name', 'text', 'video')
+
+
 
 
 

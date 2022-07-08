@@ -9,9 +9,9 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'category', 'created', 'uploded', 'available', 'price', 'amount']
+    list_display = ['id', 'title', 'category', 'created', 'available', 'price', 'amount']
     list_display_links = ['title', 'category', 'id']
-    list_filter = ['available', 'created', 'uploded']
+    list_filter = ['available', 'created']
     list_editable = ['price', 'available']
     search_fields = ['title', ]
 
@@ -24,7 +24,10 @@ class PartnerAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ['place', 'name', 'grade', 'created', 'uploded']
+    list_display = ['place', 'name', 'grade', 'created']
     list_display_links = ['place', 'name']
+    # autocomplete_fields = ('place', )
+
+
 
 
