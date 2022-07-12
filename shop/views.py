@@ -1,9 +1,9 @@
-from django.db.models import Avg
+from django.db.models import Avg, Count, Sum, FloatField, Max
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from .service import PaginatorShop
 from .telepot import send_message
-from .models import Product, Partner, Review
+from .models import Product, Partner, Review, Star
 from .serializers import ShopSerializers, ProductDetailSerializers, ContactSerializers, MessageSerializers, \
     FilterNameSerializers, PartnerSerializers, ReviewSerializers
 
@@ -62,7 +62,6 @@ class PartnerView(GenericAPIView):
 
     def get(self, request):
         partner = Partner.objects.all().order_by('place')
-        print(partner)
         serializer = PartnerSerializers(partner, many=True)
         print(serializer.data)
         return Response(serializer.data)
@@ -72,14 +71,18 @@ class ReviewView(GenericAPIView):
     serializer_class = ReviewSerializers
 
     def get(self, request):
-        review = Review.objects.order_by('place')
+        reviews = Review.objects.order_by('place')
+        middle_star = Star.objects.aggregate(middle_star=Avg('grade', output_field=FloatField()))
+        # reviews = Review.objects.annotate(middle_star=Count('reviewmiddle'))
         # review['grade'] = review['grade__avg
+        # print(review_middle)
+        serializer = ReviewSerializers(reviews, many=True)
+        # print(middle_star)
 
-        serializer = ReviewSerializers(review, many=True)
         # serializer1 = ReviewGradeSerializers(data=serializer.data)
-        # if serializer1.is_valid():
+        # if serializer2.is_valid():
         #     pass
-        # print(serializer1.data)
+        # print(serializer.data)
         return Response(serializer.data)
 
 

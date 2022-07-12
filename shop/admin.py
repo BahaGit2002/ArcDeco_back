@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Caregory, Partner, Review
+from .models import Product, Caregory, Partner, Review, Star
 
 
 @admin.register(Caregory)
@@ -24,10 +24,15 @@ class PartnerAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ['place', 'name', 'grade', 'created']
+    list_display = ['place', 'name', 'star', 'created']
     list_display_links = ['place', 'name']
     # autocomplete_fields = ('place', )
 
+
+@admin.register(Star)
+class StarAdmin(admin.ModelAdmin):
+    list_display = ['id', 'grade']
+    list_display_links = ['grade']
 
 
 

@@ -1,5 +1,6 @@
+from django.db.models import Avg, FloatField
 from rest_framework import serializers
-from .models import Product, Partner, Review
+from .models import Product, Partner, Review, Star
 
 
 class ShopSerializers(serializers.ModelSerializer):
@@ -50,11 +51,23 @@ class PartnerSerializers(serializers.ModelSerializer):
 
 
 class ReviewSerializers(serializers.ModelSerializer):
+    middle_star = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
-        fields = ('place', 'name', 'text', 'video')
+        fields = ('place', 'name', 'text', 'video', 'middle_star')
 
+    def get_middle_star(self, obj):
+        return Star.objects.aggregate(Avg('grade', output_field=FloatField()))['grade__avg']
+
+
+# class ReviewSerializer(serializers.ListSerializer):
+#     middle_star = serializers.FloatField(read_only=True)
+#     reviews = ReviewSerializers(many=True, read_only=True)
+#     # print(reviews.data)
+#
+#     class Meta:
+#         fields = ['middle_star', 'reviews']
 
 
 
