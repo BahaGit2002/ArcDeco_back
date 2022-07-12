@@ -54,19 +54,11 @@ class Partner(models.Model):
         return self.title
 
 
-class Star(models.Model):
-    grade = models.DecimalField(max_digits=2, decimal_places=1, validators=[MinValueValidator(0), MaxValueValidator(5)],
-                                default=0)
-
-    class Meta:
-        verbose_name = 'Звезда'
-        verbose_name_plural = 'Звезды'
-
-
 class Review(models.Model):
     name = models.CharField(max_length=100)
     text = models.TextField(max_length=1000)
-    star = models.ForeignKey(Star, related_name='star_choyses', on_delete=models.CASCADE, default=0)
+    grade = models.DecimalField(max_digits=2, decimal_places=1, validators=[MinValueValidator(0), MaxValueValidator(5)],
+                                default=0)
     video = models.FileField(upload_to='review', null=True)
     created = models.DateTimeField(auto_now_add=True)
     uploded = models.DateTimeField(auto_now=True)

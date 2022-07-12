@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from .service import PaginatorShop
 from .telepot import send_message
-from .models import Product, Partner, Review, Star
+from .models import Product, Partner, Review
 from .serializers import ShopSerializers, ProductDetailSerializers, ContactSerializers, MessageSerializers, \
     FilterNameSerializers, PartnerSerializers, ReviewSerializers
 
@@ -72,7 +72,7 @@ class ReviewView(GenericAPIView):
 
     def get(self, request):
         reviews = Review.objects.order_by('place')
-        middle_star = Star.objects.aggregate(middle_star=Avg('grade', output_field=FloatField()))
+        # middle_star = Star.objects.aggregate(middle_star=Avg('grade', output_field=FloatField()))
         # reviews = Review.objects.annotate(middle_star=Count('reviewmiddle'))
         # review['grade'] = review['grade__avg
         # print(review_middle)
