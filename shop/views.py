@@ -1,4 +1,3 @@
-from django.db.models import Avg, Count, Sum, FloatField, Max
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from .service import PaginatorShop
@@ -6,29 +5,24 @@ from .telepot import send_message
 from .models import Product, Partner, Review
 from .serializers import ShopSerializers, ProductDetailSerializers, ContactSerializers, MessageSerializers, \
     FilterNameSerializers, PartnerSerializers, ReviewSerializers
+from django.shortcuts import redirect, render
 
 
 class ShopView(GenericAPIView):
     queryset = Product.objects.filter(available=True)
-    # queryset = Product.objects.filter(available=True)
     serializer_class = ShopSerializers
     pagination_class = PaginatorShop
-    # print(pagination_class)
 
     def get_queryset(self):
         return Product.objects.filter(available=True)
 
     def get(self, request):
-        # product = Product.objects.filter(available=True)
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         serializer_context = {'request': request}
         serializer = self.serializer_class(
             page, context=serializer_context, many=True)
-        # page = self.paginate_queryset(queryset)
-        # serializers = ShopSerializers(product, many=True)
         data = self.get_paginated_response(serializer.data)
-        # pagination_class = PaginatorShop
         return data
 
 
@@ -48,7 +42,6 @@ class FilterNameView(GenericAPIView):
 
     def get(self, request, **kwargs):
         title = kwargs['title']
-        # print(kwargs)
         product = Product.objects.filter(available=True)
         product = product.filter(title__icontains=title)
         print(product)
@@ -72,17 +65,7 @@ class ReviewView(GenericAPIView):
 
     def get(self, request):
         reviews = Review.objects.order_by('place')
-        # middle_star = Star.objects.aggregate(middle_star=Avg('grade', output_field=FloatField()))
-        # reviews = Review.objects.annotate(middle_star=Count('reviewmiddle'))
-        # review['grade'] = review['grade__avg
-        # print(review_middle)
         serializer = ReviewSerializers(reviews, many=True)
-        # print(middle_star)
-
-        # serializer1 = ReviewGradeSerializers(data=serializer.data)
-        # if serializer2.is_valid():
-        #     pass
-        # print(serializer.data)
         return Response(serializer.data)
 
 
@@ -101,7 +84,6 @@ class ContactView(GenericAPIView):
 
 class MessageView(GenericAPIView):
     serializer_class = MessageSerializers
-    # pagination_class = PaginatorShop
 
     def post(self, request):
 
@@ -114,7 +96,25 @@ class MessageView(GenericAPIView):
         return Response('Ok')
 
 
-
-
+# class RegisterView(GenericAPIView):
+#     serializer_class = RegisterSerializers
+#
+#     def post(self, request):
+#         serializer = RegisterSerializers(data=request.data)
+#         data = {}
+#         form = ContactForm(request.POST)
+#         if form.is_valid():
+#             form.send()
+#         if serializer.is_valid():
+#             serializer.save()
+#             data['response'] = True
+#             return Response(data, status=status.HTTP_200_OK)
+#         else:
+#             data = serializer.errors
+#             return Response(data)
+def calculator(request):
+    if request.method == 'POST':
+        # vname_id = request.POST['']
+        return redirect('addmovie')
 
 

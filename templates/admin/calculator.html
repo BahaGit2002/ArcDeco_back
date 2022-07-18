@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <!--/ Style-CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" media="all">
+    <!--// Style-CSS -->
+    <!-- font-awesome-icons -->
+    <link href="{% static 'css/font-awesome.css' %}" rel="stylesheet">
+    <!-- //font-awesome-icons -->
+  <!-- /Fonts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link href="//fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:200,200i,300,300i,400,400i,600,600i,700,700i,900" rel="stylesheet">
+</head>
+<body>
+     <section id="addmovie" class="bg-light py-5">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6 mx-auto">
+              <div class="card">
+                <div class="card-header bg-primary text-white">
+                  <h4>
+                    <i class="fas fa-user-plus"></i> Добавить фильм</h4>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'addmovie'%}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                    <div class="form-group">
+                      <select class="form-control" name="actors" multiple>
+                        <option disabled>Выберите продукта</option>
+                          {% for i in product %}
+                        <option value="{{ i.id }}">{{ i }}</option>
+                          {% endfor %}
+                      </select>
+                    </div>
+                    <input type="submit" value="Вычислять" class="btn btn-secondary btn-block">
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </section>
+</body>
+</html>

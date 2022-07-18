@@ -11,7 +11,7 @@ class ProductPortfolio(models.Model):
     image1 = models.ImageField(upload_to='ProductPortfolio/image1', blank=True)
     image2 = models.ImageField(upload_to='ProductPortfolio/image2', blank=True)
     image3 = models.ImageField(upload_to='ProductPortfolio/image3', blank=True)
-    discriptions = models.TextField(max_length=1000)
+    descriptions = models.TextField(max_length=1000)
     created = models.DateTimeField(auto_now_add=True)
     uploded = models.DateTimeField(auto_now=True)
 

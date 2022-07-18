@@ -15,6 +15,6 @@ class PortfolioDetailSerializers(serializers.ModelSerializer):
         model = ProductPortfolio
         fields = ('id', 'title', 'pharetra',
                   'uorttitor', 'quisque', 'aliquet',
-                  'poster', 'image1', 'image2', 'image3', 'discriptions')
+                  'poster', 'image1', 'image2', 'image3', 'descriptions')
 
 

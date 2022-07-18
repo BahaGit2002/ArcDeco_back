@@ -1,4 +1,4 @@
-from .views import ShopView, ProductDetailView, ContactView, MessageView, FilterNameView, PartnerView, ReviewView
+from .views import ShopView, ProductDetailView, ContactView, MessageView, FilterNameView, PartnerView, ReviewView, calculator
 from django.urls import path
 
 
@@ -10,5 +10,7 @@ urlpatterns = [
     path('title-search/<str:title>/', FilterNameView.as_view(), name='titlesearch'),
     path('partner/', PartnerView.as_view(), name='partner'),
     path('review/', ReviewView.as_view(), name='review'),
+    path('addmovie/', calculator, name='addmovie')
+    # path('register', RegisterView.as_view(), name='register')
 ]
-
+#
