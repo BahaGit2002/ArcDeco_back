@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.shortcuts import redirect, render
-from .models import Product, Caregory, Partner, Review,  Window
+from .models import Product, Caregory, Partner, Review,  Window, WindowModel, PedestalModel, Pedestal
 from django.urls import path
 
 
@@ -46,30 +46,48 @@ class ProductAdmin(admin.ModelAdmin):
             return redirect('/admin/shop/product/')
 
 
+# @admin.register(WindowModel)
+class WindowModelAdmin(admin.StackedInline):
+    model = WindowModel
+    extra = 1
+
+
 @admin.register(Window)
 class WindowAdmin(admin.ModelAdmin):
-    list_display = ['id', ]
-    change_list_template = "admin/models_list.html"
+    list_display = ['id', 'title']
+    # change_list_template = "admin/models_list.html"
+    inlines = [WindowModelAdmin, ]
 
-    def get_urls(self):
-        urls = super(WindowAdmin, self).get_urls()
-        custom_urls = [
-            path('calculator/', self.process_calculator_btmp, name='process_calculator'),
-            # path('')
-        ]
-        return custom_urls + urls
 
-    def process_calculator_btmp(self, request):
-        print(request)
-        if request.method == 'POST':
-            product = Product.objects.all()
-            print(product)
-            # percent = request.POST['text']
-            # for i in product:
-            #     total = float(i.price) * (1 + 100)
-            #     i.price = total
-            #     i.save()
-            return render(request, 'admin/calculator.html', {'product': product})
+class PedestalModelAdmin(admin.StackedInline):
+    model = PedestalModel
+    extra = 1
+
+
+@admin.register(Pedestal)
+class PedestalAdmin(admin.ModelAdmin):
+    list_display = ['id', 'title']
+    # change_list_template = "admin/models_list.html"
+    inlines = [PedestalModelAdmin, ]
+    # def get_urls(self):
+    #     urls = super(WindowAdmin, self).get_urls()
+    #     custom_urls = [
+    #         path('calculator/', self.process_calculator_btmp, name='process_calculator'),
+    #         # path('')
+    #     ]
+    #     return custom_urls + urls
+    #
+    # def process_calculator_btmp(self, request):
+    #     print(request)
+    #     if request.method == 'POST':
+    #         product = Product.objects.all()
+    #         print(product)
+    #         # percent = request.POST['text']
+    #         # for i in product:
+    #         #     total = float(i.price) * (1 + 100)
+    #         #     i.price = total
+    #         #     i.save()
+    #         return render(request, 'admin/calculator.html', {'product': product})
 
 
 @admin.register(Partner)
@@ -88,3 +106,5 @@ class ReviewAdmin(admin.ModelAdmin):
 admin.site.site_title = 'Админ-панель сайта о Art-Deco'
 admin.site.site_header = 'Админ-панель сайта о Art-Deco'
 
+# admin.site.register(WindowModel)
+# @admin.register(WindowModel)

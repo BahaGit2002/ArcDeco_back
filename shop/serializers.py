@@ -1,9 +1,15 @@
 from django.db.models import Avg, FloatField
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Product, Partner, Review
+from .models import Product, Partner, Review, Caregory
 from django.conf import settings
 from django.core.mail import send_mail
+
+
+class CategorySerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Caregory
+        fields = ('id', 'title')
 
 
 class ShopSerializers(serializers.ModelSerializer):
@@ -66,29 +72,6 @@ class ReviewSerializers(serializers.ModelSerializer):
 
     def get_count_review(self, obj):
         return len(Review.objects.all())
-#
-#
-# class RegisterSerializers(serializers.ModelSerializer):
-#     password2 = serializers.CharField()
-#
-#     class Meta:
-#         model = User
-#         fields = ['first_name', 'last_name', 'email', 'username', 'password', 'password2']
-#
-#     def save(self, *args, **kwargs):
-#         user = User(
-#             email=self.validated_data['email'],
-#             username=self.validated_data['username'],
-#             first_name=self.validated_data['first_name'],
-#             last_name=self.validated_data['last_name'],
-#         )
-#         password = self.validated_data['password']
-#         password2 = self.validated_data['password2']
-#         if password != password2:
-#             raise serializers.ValidationError({password: "Пароль не совпадает"})
-#         user.set_password(password)
-#         user.save()
-#         return user
 
 
 

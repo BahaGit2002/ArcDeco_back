@@ -2,10 +2,19 @@ from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from .service import PaginatorShop
 from .telepot import send_message
-from .models import Product, Partner, Review
+from .models import Product, Partner, Review, Window, Caregory
 from .serializers import ShopSerializers, ProductDetailSerializers, ContactSerializers, MessageSerializers, \
-    FilterNameSerializers, PartnerSerializers, ReviewSerializers
+    FilterNameSerializers, PartnerSerializers, ReviewSerializers, CategorySerializers
 from django.shortcuts import redirect, render
+
+
+class CategoryView(GenericAPIView):
+    serializer_class = CategorySerializers
+
+    def get(self, request):
+        category = Caregory.objects.all()
+        serializer = CategorySerializers(category, many=True)
+        return Response(serializer.data)
 
 
 class ShopView(GenericAPIView):
@@ -16,7 +25,7 @@ class ShopView(GenericAPIView):
     def get_queryset(self):
         return Product.objects.filter(available=True)
 
-    def get(self, request):
+    def get(self, request, **kwargs):
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         serializer_context = {'request': request}
@@ -32,6 +41,9 @@ class ProductDetailView(GenericAPIView):
     def get(self, request, **kwargs):
         pk = kwargs['id']
         product = Product.objects.get(id=pk)
+        product1 = Window.objects.all()
+        for i in product1:
+            print(i.product.price)
         serializer = ProductDetailSerializers(product)
 
         return Response(serializer.data)

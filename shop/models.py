@@ -40,33 +40,40 @@ class Product(models.Model):
 
 
 class Window(models.Model):
-    pm = 'PM'
-    sht = 'ST'
     true = 'tr'
     false = 'fa'
-    choice_status = [
-        (pm, 'П.М'),
-        (sht, 'ШТ')
-    ]
     choice_status_2 = [
         (true, 'Да'),
         (false, 'Нет')
     ]
-    image = models.ImageField(upload_to='window', blank=True)
-    # category = models.ManyToManyField(Caregory, verbose_name='категория', blank=True)
-    product = models.ForeignKey(Product, verbose_name='продукция', on_delete=models.CASCADE, blank=True, default=True)
-    measurement = models.CharField(max_length=2, verbose_name='единица измерения', choices=choice_status, default=pm)
-    count = models.IntegerField('Каличество')
-    price = models.DecimalField('цена', max_digits=100, decimal_places=2)
-    product_detail = models.ManyToManyField(Product, verbose_name='продукция для деталя', blank=True)
-    measurement_detail = models.CharField(max_length=2, verbose_name='единица измерения для деталя', choices=choice_status, default=pm)
-    count_detail = models.IntegerField('Каличество для деталя')
-    price_detail = models.DecimalField('цена для деталя', max_digits=100, decimal_places=2)
-    choice = models.CharField(max_length=2, verbose_name='25см оставить', choices=choice_status_2, default=true)
+    title = models.CharField('Названия', max_length=100, default='')
+    image = models.ImageField('Фото', upload_to='window', blank=True, db_index=True)
+    choice = models.CharField(max_length=2, verbose_name='25 cm оставить', choices=choice_status_2, default=true)
+    category = models.ForeignKey(Caregory, verbose_name='категория', on_delete=models.CASCADE, null=True)
 
     class Meta:
         verbose_name = 'Готовые окна'
         verbose_name_plural = 'Готовые окна'
+
+    def __str__(self):
+        return self.title
+
+
+class WindowModel(models.Model):
+    pm = 'PM'
+    sht = 'ST'
+    choice_status = [
+        (pm, 'П.М'),
+        (sht, 'ШТ')
+    ]
+    category = models.ForeignKey(Window, on_delete=models.CASCADE, null=True, blank=True)
+    product = models.ForeignKey(Product, verbose_name='продукция', on_delete=models.CASCADE, blank=True, default=True)
+    measurement = models.CharField(max_length=2, verbose_name='единица измерения', choices=choice_status, default=pm)
+    count = models.IntegerField('Каличество', default=0)
+    price = models.DecimalField('цена', max_digits=100, decimal_places=2, default=0)
+
+    # def __str__(self):
+    #     return self.product
 
 
 class Partner(models.Model):
@@ -101,9 +108,33 @@ class Review(models.Model):
     def __str__(self):
         return self.name
 
-    # def save(self, *args, **kwargs):
-    #     grade = Review.objects.all().aggregate(Avg('grade'))
-    #     if args != () and kwargs != ():
-    #         super(Review, self).save()
-    #     print(args)
-    #     return grade
+
+class Pedestal(models.Model):
+    title = models.CharField('', max_length=100)
+    category = models.ForeignKey(Caregory, on_delete=models.CASCADE, null=True, blank=True)
+    image = models.ImageField('Фото', upload_to='pedestal', blank=True, db_index=True)
+
+    class Meta:
+        verbose_name = 'Палястра'
+        verbose_name_plural = 'Палястры'
+
+    def __str__(self):
+        return self.title
+
+
+class PedestalModel(models.Model):
+    pm = 'PM'
+    sht = 'ST'
+    choice_status = [
+        (pm, 'П.М'),
+        (sht, 'ШТ')
+    ]
+    category = models.ForeignKey(Pedestal, on_delete=models.CASCADE, null=True, blank=True)
+    poster = models.ImageField('Размер', upload_to='pedestal/model', blank=True, db_index=True)
+    title = models.CharField('наименование', max_length=100)
+    measurement = models.CharField(max_length=2, verbose_name='единица измерения', choices=choice_status, default=pm)
+    count = models.IntegerField('Каличество', default=0)
+    size_1 = models.IntegerField('размер')
+    size_2 = models.IntegerField('размер')
+
+
