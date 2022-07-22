@@ -1,7 +1,7 @@
 from django.db.models import Avg, FloatField
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Product, Partner, Review, Caregory
+from .models import Product, Partner, Review, Caregory, Window, WindowModel
 from django.conf import settings
 from django.core.mail import send_mail
 
@@ -13,6 +13,7 @@ class CategorySerializers(serializers.ModelSerializer):
 
 
 class ShopSerializers(serializers.ModelSerializer):
+
     class Meta:
         model = Product
         fields = ('id', 'name', 'image', 'price')
@@ -44,12 +45,12 @@ class MessageSerializers(serializers.Serializer):
     class Meta:
         fields = ('name', 'phone_number', 'text')
 
-
-class FilterNameSerializers(serializers.ModelSerializer):
-
-    class Meta:
-        model = Product
-        fields = ('id', 'name', 'image')
+#
+# class FilterNameSerializers(serializers.ModelSerializer):
+#
+#     class Meta:
+#         model = Product
+#         fields = ('id', 'name', 'image')
 
 
 class PartnerSerializers(serializers.ModelSerializer):
@@ -74,9 +75,33 @@ class ReviewSerializers(serializers.ModelSerializer):
         return len(Review.objects.all())
 
 
+class ProductFilterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = "__all__"
 
 
+class WindowModelSerializer(serializers.ModelSerializer):
+    # product_name = serializers.RelatedField(source='category', read_only=True)
+    product_name = serializers.ReadOnlyField(source='product.name')
+
+    class Meta:
+        model = WindowModel
+        fields = ('product_name', 'measurement', 'count', 'price')
 
 
+class WindowSerializer(serializers.ModelSerializer):
+    window = WindowModelSerializer(many=True)
+
+    class Meta:
+        model = Window
+        fields = ('id', 'title', 'image', 'window', )
 
 
+class CalculatorWindowSerializer(serializers.Serializer):
+    length = serializers.FloatField()
+    width = serializers.FloatField()
+    count_window = serializers.IntegerField(min_value=1)
+
+    class Meta:
+        fields = ('length', 'width', 'count_window')

@@ -4,7 +4,6 @@ from .models import Product, Caregory, Partner, Review,  Window, WindowModel, Pe
 from django.urls import path
 
 
-# @admin.register(Product)
 class ChannelAdmin(admin.StackedInline):
     model = Product
     extra = 1
@@ -14,7 +13,7 @@ class ChannelAdmin(admin.StackedInline):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', ]
     list_display_links = ['id', 'title']
-    inlines = [ChannelAdmin, ]
+    # inlines = [ChannelAdmin, ]
 
 
 @admin.register(Product)
@@ -25,13 +24,11 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ['price', 'available']
     search_fields = ['name', ]
     change_list_template = "admin/model_change_list.html"
-    # change_list_template = 'admin/'
 
     def get_urls(self):
         urls = super(ProductAdmin, self).get_urls()
         custom_urls = [
             path('import/', self.process_import_btmp, name='process_import'),
-            # path('')
         ]
         return custom_urls + urls
 
@@ -46,27 +43,34 @@ class ProductAdmin(admin.ModelAdmin):
             return redirect('/admin/shop/product/')
 
 
-# @admin.register(WindowModel)
 class WindowModelAdmin(admin.StackedInline):
     model = WindowModel
+    # search_fields = ['windowmodel__category', ]
+    fields = ('product', 'choice', 'measurement', ('count', 'price'), 'choice_window')
     extra = 1
 
 
 @admin.register(Window)
 class WindowAdmin(admin.ModelAdmin):
     list_display = ['id', 'title']
-    # change_list_template = "admin/models_list.html"
+    list_display_links = ['id', 'title']
+    search_fields = ['title']
+    save_on_top = True
+    # autocomplete_fields = ['WindowModel__product', 'title']
     inlines = [WindowModelAdmin, ]
 
 
 class PedestalModelAdmin(admin.StackedInline):
     model = PedestalModel
+    fields = ('poster', 'title', 'measurement', 'count', ('size_1', 'price_1', 'available'), ('size_2', 'price_2'))
     extra = 1
 
 
 @admin.register(Pedestal)
 class PedestalAdmin(admin.ModelAdmin):
     list_display = ['id', 'title']
+    list_display_links = ['id', 'title']
+    search_fields = ['title', ]
     # change_list_template = "admin/models_list.html"
     inlines = [PedestalModelAdmin, ]
     # def get_urls(self):
@@ -92,7 +96,6 @@ class PedestalAdmin(admin.ModelAdmin):
 
 @admin.register(Partner)
 class PartnerAdmin(admin.ModelAdmin):
-    # pass
     list_display = ['place', 'title', ]
     list_display_links = ['place', 'title']
 
@@ -106,5 +109,12 @@ class ReviewAdmin(admin.ModelAdmin):
 admin.site.site_title = 'Админ-панель сайта о Art-Deco'
 admin.site.site_header = 'Админ-панель сайта о Art-Deco'
 
-# admin.site.register(WindowModel)
+
 # @admin.register(WindowModel)
+# class WindowModelAdmin(admin.ModelAdmin):
+#     list_display = ['product', 'id']
+#
+#
+# @admin.register(Window_Model)
+# class Window_ModelAdmin(admin.ModelAdmin):
+#     list_display = ['window', 'window_model']

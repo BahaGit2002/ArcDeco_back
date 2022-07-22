@@ -29,6 +29,8 @@ import os
 # Custom setting. To email
 # RECIPIENT_ADDRESS = env('RECIPIENT_ADDRESS')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+import rest_framework.pagination
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -46,7 +48,8 @@ ALLOWED_HOSTS = []
 
 # Application definition
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 1,
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -79,6 +82,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'portfolio',
+    'django_filters',
 ]
 
 MIDDLEWARE = [

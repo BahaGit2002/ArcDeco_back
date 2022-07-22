@@ -31,49 +31,12 @@ class Product(models.Model):
     amount = models.IntegerField('количество', default=0)
 
     class Meta:
-        ordering = ('name', )
+        ordering = ('id', )
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
 
     def __str__(self):
         return self.name
-
-
-class Window(models.Model):
-    true = 'tr'
-    false = 'fa'
-    choice_status_2 = [
-        (true, 'Да'),
-        (false, 'Нет')
-    ]
-    title = models.CharField('Названия', max_length=100, default='')
-    image = models.ImageField('Фото', upload_to='window', blank=True, db_index=True)
-    choice = models.CharField(max_length=2, verbose_name='25 cm оставить', choices=choice_status_2, default=true)
-    category = models.ForeignKey(Caregory, verbose_name='категория', on_delete=models.CASCADE, null=True)
-
-    class Meta:
-        verbose_name = 'Готовые окна'
-        verbose_name_plural = 'Готовые окна'
-
-    def __str__(self):
-        return self.title
-
-
-class WindowModel(models.Model):
-    pm = 'PM'
-    sht = 'ST'
-    choice_status = [
-        (pm, 'П.М'),
-        (sht, 'ШТ')
-    ]
-    category = models.ForeignKey(Window, on_delete=models.CASCADE, null=True, blank=True)
-    product = models.ForeignKey(Product, verbose_name='продукция', on_delete=models.CASCADE, blank=True, default=True)
-    measurement = models.CharField(max_length=2, verbose_name='единица измерения', choices=choice_status, default=pm)
-    count = models.IntegerField('Каличество', default=0)
-    price = models.DecimalField('цена', max_digits=100, decimal_places=2, default=0)
-
-    # def __str__(self):
-    #     return self.product
 
 
 class Partner(models.Model):
@@ -109,6 +72,59 @@ class Review(models.Model):
         return self.name
 
 
+class Window(models.Model):
+    title = models.CharField('Названия', max_length=100, default='', db_index=True)
+    image = models.ImageField('Фото', upload_to='window', blank=True, db_index=True)
+    category = models.ForeignKey(Caregory, verbose_name='категория', on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        verbose_name = 'Готовые окна'
+        verbose_name_plural = 'Готовые окна'
+        ordering = ('id', )
+
+    def __str__(self):
+        return self.title
+
+
+class WindowModel(models.Model):
+    choice_status = [
+        ('PM', 'П.М'),
+        ('ST', 'ШТ')
+    ]
+    choice_status_1 = [
+        ('dn', 'нижний часть'),
+        ('wh', 'верхний часть'),
+        ('dw', 'верхний и нижный часть'),
+        ('bk', 'бокавые части'),
+        ('dl', 'деталь')
+    ]
+    choice_status_2 = [
+        ('true', 'Да'),
+        ('false', 'Нет'),
+    ]
+    category = models.ForeignKey(Window, related_name='window', on_delete=models.CASCADE, default=0)
+    # through = 'Window_Model'
+    choice = models.CharField(max_length=5, verbose_name='Част', choices=choice_status_1, default='dn')
+    product = models.ForeignKey(Product, verbose_name='продукция', on_delete=models.CASCADE, default=True)
+    measurement = models.CharField(max_length=2, verbose_name='единица измерения', choices=choice_status, default='PM')
+    count = models.IntegerField('Каличество', default=0)
+    price = models.DecimalField('цена', max_digits=100, decimal_places=2, default=0)
+    choice_window = models.CharField(max_length=5, verbose_name='25 cm оставить', choices=choice_status_2, default='false')
+
+    class Meta:
+        verbose_name = 'Экземпляр'
+        verbose_name_plural = 'Экзепляры'
+
+    def __str__(self):
+        return f'{self.product}'
+
+
+#
+# class Window_Model(models.Model):
+#     window = models.ForeignKey(Window, on_delete=models.RESTRICT)
+#     window_model = models.ForeignKey(WindowModel, on_delete=models.RESTRICT)
+
+
 class Pedestal(models.Model):
     title = models.CharField('', max_length=100)
     category = models.ForeignKey(Caregory, on_delete=models.CASCADE, null=True, blank=True)
@@ -117,6 +133,7 @@ class Pedestal(models.Model):
     class Meta:
         verbose_name = 'Палястра'
         verbose_name_plural = 'Палястры'
+        ordering = ('id', )
 
     def __str__(self):
         return self.title
@@ -135,6 +152,17 @@ class PedestalModel(models.Model):
     measurement = models.CharField(max_length=2, verbose_name='единица измерения', choices=choice_status, default=pm)
     count = models.IntegerField('Каличество', default=0)
     size_1 = models.IntegerField('размер')
-    size_2 = models.IntegerField('размер')
+    price_1 = models.DecimalField('цена', max_digits=100, decimal_places=2, default=0)
+    size_2 = models.IntegerField('размер', null=True)
+    price_2 = models.DecimalField('цена', max_digits=100, decimal_places=2, null=True, default=0)
+    available = models.BooleanField('Если два размера', default=False)
+
+    class Meta:
+        verbose_name = 'Тумба'
+        verbose_name_plural = 'Тумбы'
+
+    def __str__(self):
+        return self.title
+
 
 

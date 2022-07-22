@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 
 class PaginatorShop(PageNumberPagination):
-    page_size = 10
+    page_size = 12
     max_page_size = 10000
 
     def get_paginated_response(self, data):
