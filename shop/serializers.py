@@ -1,9 +1,6 @@
 from django.db.models import Avg, FloatField
-from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Product, Partner, Review, Caregory, Window, WindowModel
-from django.conf import settings
-from django.core.mail import send_mail
+from .models import Product, Partner, Review, Caregory, Window, WindowModel, PedestalModel, Pedestal
 
 
 class CategorySerializers(serializers.ModelSerializer):
@@ -16,19 +13,25 @@ class ShopSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('id', 'name', 'image', 'price')
+        fields = ('id', 'title', 'image',)
 
 
 class ProductDetailSerializers(serializers.ModelSerializer):
+    similar = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
-        fields = ('id', 'name', 'image',
+        fields = ('id', 'title', 'image',
                   'poster1', 'poster2', 'poster3',
-                  'category', 'poster', 'descriptions')
+                  'category', 'poster', 'descriptions', 'similar')
+
+    def get_similar(self, obj):
+        product = Product.objects.exclude(title=obj.title).filter(category=obj.category)[:4]
+        serializer = ShopSerializers(product, many=True)
+        return serializer.data
 
 
 class ContactSerializers(serializers.Serializer):
-
     name = serializers.CharField(max_length=100)
     phone_number = serializers.CharField(max_length=100)
 
@@ -44,13 +47,6 @@ class MessageSerializers(serializers.Serializer):
 
     class Meta:
         fields = ('name', 'phone_number', 'text')
-
-#
-# class FilterNameSerializers(serializers.ModelSerializer):
-#
-#     class Meta:
-#         model = Product
-#         fields = ('id', 'name', 'image')
 
 
 class PartnerSerializers(serializers.ModelSerializer):
@@ -75,27 +71,33 @@ class ReviewSerializers(serializers.ModelSerializer):
         return len(Review.objects.all())
 
 
-class ProductFilterSerializer(serializers.ModelSerializer):
+class WindowSerializer(serializers.ModelSerializer):
+
     class Meta:
-        model = Product
-        fields = "__all__"
+        model = Window
+        fields = ('id', 'title', 'image')
 
 
 class WindowModelSerializer(serializers.ModelSerializer):
-    # product_name = serializers.RelatedField(source='category', read_only=True)
     product_name = serializers.ReadOnlyField(source='product.name')
 
     class Meta:
         model = WindowModel
-        fields = ('product_name', 'measurement', 'count', 'price')
+        fields = ('product_name', 'measurement', 'count')
 
 
-class WindowSerializer(serializers.ModelSerializer):
+class WindowDetailSerializer(serializers.ModelSerializer):
     window = WindowModelSerializer(many=True)
+    similar = serializers.SerializerMethodField()
 
     class Meta:
         model = Window
-        fields = ('id', 'title', 'image', 'window', )
+        fields = ('id', 'title', 'image', 'descriptions', 'window', 'similar')
+
+    def get_similar(self, obj):
+        window = Window.objects.exclude(title=obj.title)[:4]
+        serializer = WindowSerializer(window, many=True)
+        return serializer.data
 
 
 class CalculatorWindowSerializer(serializers.Serializer):
@@ -105,3 +107,67 @@ class CalculatorWindowSerializer(serializers.Serializer):
 
     class Meta:
         fields = ('length', 'width', 'count_window')
+
+
+class CalculatorRackSerializer(serializers.Serializer):
+    width = serializers.FloatField()
+    length = serializers.FloatField()
+    count_rack_facial = serializers.IntegerField(min_value=0)
+    count_rack_angular = serializers.IntegerField(min_value=0)
+
+    class Meta:
+        fields = ('width', 'length', 'count_rack_facial', 'count_rack_angular')
+
+
+class RackSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = Pedestal
+        fields = ('id', 'title', 'image')
+
+
+class ChoiceSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = PedestalModel
+        fields = ('size_2', 'price_2')
+
+
+class RackModelSerializer(serializers.ModelSerializer):
+    size_2 = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PedestalModel
+        fields = ('id', 'title', 'poster', 'size_1', 'price_pm', 'price_sht', 'available', 'size_2')
+
+    def get_size_2(self, obj):
+        rack = PedestalModel.objects.filter(available=True, id=obj.id)
+        serializer = ChoiceSerializers(rack, many=True)
+        print(obj.id)
+        return serializer.data
+
+
+class RackDetailSerializer(serializers.ModelSerializer):
+    rack = RackModelSerializer(many=True)
+    similar = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Pedestal
+        fields = ('id', 'title', 'image', 'descriptions', 'rack', 'similar', )
+
+    def get_similar(self, obj):
+        rack = Pedestal.objects.exclude(title=obj.title)[:4]
+        serializer = RackSerializers(rack, many=True)
+        return serializer.data
+
+
+class ProductSerializers(serializers.Serializer):
+    rack = RackSerializers(many=True)
+    window = WindowSerializer(many=True)
+    product = ShopSerializers(many=True)
+
+
+class ProductDetailSerializersall(serializers.Serializer):
+    rack_detail = RackDetailSerializer(many=True)
+    window_detail = WindowDetailSerializer(many=True)
+    product_detail = ProductDetailSerializers(many=True)

@@ -1,6 +1,5 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.db.models import Avg
 
 
 class Caregory(models.Model):
@@ -16,7 +15,7 @@ class Caregory(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField('наименование', max_length=100)
+    title = models.CharField('наименование', max_length=100)
     descriptions = models.TextField(max_length=1000, default='')
     image = models.ImageField('фото продукта', upload_to='products', blank=True)
     poster = models.ImageField('размер', upload_to='products/poster', blank=True)
@@ -28,7 +27,6 @@ class Product(models.Model):
     poster3 = models.ImageField(upload_to='products/poster3', blank=True)
     created = models.DateTimeField('дата создание', auto_now_add=True)
     uploded = models.DateTimeField('дата обновление', auto_now=True)
-    amount = models.IntegerField('количество', default=0)
 
     class Meta:
         ordering = ('id', )
@@ -36,7 +34,7 @@ class Product(models.Model):
         verbose_name_plural = 'Товары'
 
     def __str__(self):
-        return self.name
+        return self.title
 
 
 class Partner(models.Model):
@@ -73,9 +71,13 @@ class Review(models.Model):
 
 
 class Window(models.Model):
-    title = models.CharField('Названия', max_length=100, default='', db_index=True)
+    title = models.CharField('Названия', max_length=100, default='')
+    # code_product = models.CharField('Код продукта', max_length=100, default='')
+    descriptions = models.TextField(max_length=1000, default='')
+    available = models.BooleanField('наличие', default=True)
     image = models.ImageField('Фото', upload_to='window', blank=True, db_index=True)
-    category = models.ForeignKey(Caregory, verbose_name='категория', on_delete=models.CASCADE, null=True)
+    category = models.ForeignKey(Caregory, verbose_name='категория', on_delete=models.CASCADE,
+                                 null=True, related_name='category')
 
     class Meta:
         verbose_name = 'Готовые окна'
@@ -103,12 +105,10 @@ class WindowModel(models.Model):
         ('false', 'Нет'),
     ]
     category = models.ForeignKey(Window, related_name='window', on_delete=models.CASCADE, default=0)
-    # through = 'Window_Model'
-    choice = models.CharField(max_length=5, verbose_name='Част', choices=choice_status_1, default='dn')
-    product = models.ForeignKey(Product, verbose_name='продукция', on_delete=models.CASCADE, default=True)
+    choice = models.CharField(max_length=5, verbose_name='Часть', choices=choice_status_1, default='dn')
+    product = models.ForeignKey(Product, verbose_name='продукция', on_delete=models.CASCADE, default='')
     measurement = models.CharField(max_length=2, verbose_name='единица измерения', choices=choice_status, default='PM')
-    count = models.IntegerField('Каличество', default=0)
-    price = models.DecimalField('цена', max_digits=100, decimal_places=2, default=0)
+    count = models. IntegerField('каличество', default=0, null=True)
     choice_window = models.CharField(max_length=5, verbose_name='25 cm оставить', choices=choice_status_2, default='false')
 
     class Meta:
@@ -119,20 +119,16 @@ class WindowModel(models.Model):
         return f'{self.product}'
 
 
-#
-# class Window_Model(models.Model):
-#     window = models.ForeignKey(Window, on_delete=models.RESTRICT)
-#     window_model = models.ForeignKey(WindowModel, on_delete=models.RESTRICT)
-
-
 class Pedestal(models.Model):
-    title = models.CharField('', max_length=100)
+    title = models.CharField('Наименование', max_length=100)
     category = models.ForeignKey(Caregory, on_delete=models.CASCADE, null=True, blank=True)
     image = models.ImageField('Фото', upload_to='pedestal', blank=True, db_index=True)
+    descriptions = models.TextField(max_length=1000, default='')
+    available = models.BooleanField('наличие', default=True)
 
     class Meta:
-        verbose_name = 'Палястра'
-        verbose_name_plural = 'Палястры'
+        verbose_name = 'Стойка'
+        verbose_name_plural = 'Стойка'
         ordering = ('id', )
 
     def __str__(self):
@@ -140,21 +136,32 @@ class Pedestal(models.Model):
 
 
 class PedestalModel(models.Model):
-    pm = 'PM'
-    sht = 'ST'
     choice_status = [
-        (pm, 'П.М'),
-        (sht, 'ШТ')
+        ('PM', 'П.М'),
+        ('SHT', 'ШТ'),
     ]
-    category = models.ForeignKey(Pedestal, on_delete=models.CASCADE, null=True, blank=True)
+    choice_status_1 = [
+        ('angular', 'наименование угловой'),
+        ('facial', 'наименование лицовой'),
+        ('name', 'наименование'),
+    ]
+    choice_status_2 = [
+        ('top', 'Верхний часть'),
+        ('average', 'Средний часть'),
+        ('lower', 'Нижный часть'),
+        ('top and lower', 'Верхний и нижный часть'),
+    ]
+    category = models.ForeignKey(Pedestal, on_delete=models.CASCADE, null=True, blank=True, related_name='rack')
     poster = models.ImageField('Размер', upload_to='pedestal/model', blank=True, db_index=True)
     title = models.CharField('наименование', max_length=100)
-    measurement = models.CharField(max_length=2, verbose_name='единица измерения', choices=choice_status, default=pm)
-    count = models.IntegerField('Каличество', default=0)
+    choice = models.CharField(max_length=10, verbose_name='', choices=choice_status_1, default='angular')
+    measurement = models.CharField(max_length=10, verbose_name='единица измерения', choices=choice_status, default='PM')
+    choice_1 = models.CharField(max_length=20, verbose_name='часть', choices=choice_status_2, default='top')
     size_1 = models.IntegerField('размер')
-    price_1 = models.DecimalField('цена', max_digits=100, decimal_places=2, default=0)
-    size_2 = models.IntegerField('размер', null=True)
-    price_2 = models.DecimalField('цена', max_digits=100, decimal_places=2, null=True, default=0)
+    price_pm = models.DecimalField('цена за ШТ', max_digits=100, decimal_places=2, default=0)
+    price_sht = models.DecimalField('цена за П.М', max_digits=100, decimal_places=2, default=0)
+    size_2 = models.IntegerField('размер', null=True, default=0)
+    price_2 = models.DecimalField('цена за ШТ или П.М', max_digits=100, decimal_places=2, null=True, default=0)
     available = models.BooleanField('Если два размера', default=False)
 
     class Meta:

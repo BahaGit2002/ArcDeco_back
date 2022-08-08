@@ -49,8 +49,8 @@ ALLOWED_HOSTS = []
 # Application definition
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 1,
+    'DEFAULT_PAGINATION_CLASS': ' rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 2,
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
@@ -118,12 +118,11 @@ WSGI_APPLICATION = 'ArcDeco.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'arcdeco',
-        'USER': 'arcdecouser',
+        'NAME': 'artdeco',
+        'USER': 'artdecouser',
         'PASSWORD': '12345',
         'HOST': '127.0.0.1',
         'PORT': '5432',

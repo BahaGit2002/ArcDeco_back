@@ -1,16 +1,12 @@
-from django_filters.rest_framework import RangeFilter, FilterSet, BaseInFilter, CharFilter
-from .models import Product
-
-
-class CharFilterInFilter(BaseInFilter, CharFilter):
-    pass
+from django_filters.rest_framework import RangeFilter, FilterSet, BaseInFilter, CharFilter, NumberFilter
+from .models import Product, Pedestal, Window
 
 
 class ProductFilter(FilterSet):
-    category = CharFilterInFilter(field_name='category__title', lookup_expr='in')
-    name = CharFilterInFilter(field_name='name', lookup_expr='in')
-    price = RangeFilter()
+    name = CharFilter(field_name='name', lookup_expr='icontains')
+    min_price = NumberFilter(field_name='price', lookup_expr='gte')
+    max_price = NumberFilter(field_name='price', lookup_expr='lte')
 
     class Meta:
         model = Product
-        fields = ['price', 'category', 'name']
+        fields = ['name', 'min_price', 'max_price', ]

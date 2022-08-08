@@ -4,11 +4,10 @@ from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, ListAPIView
 from .service import PaginatorShop
 from .telepot import send_message
-from .models import Product, Partner, Review, Window, Caregory, WindowModel
+from .models import Product, Partner, Review, Window, Caregory, WindowModel, PedestalModel, Pedestal
 from .serializers import (
-    ShopSerializers, ProductDetailSerializers, ContactSerializers, MessageSerializers,
-    PartnerSerializers, ReviewSerializers, CategorySerializers, WindowSerializer,
-    CalculatorWindowSerializer
+    ShopSerializers, ContactSerializers, MessageSerializers, PartnerSerializers, ReviewSerializers, CategorySerializers,
+    CalculatorWindowSerializer, CalculatorRackSerializer, ProductSerializers, ProductDetailSerializersall
                         )
 from .filters import ProductFilter
 
@@ -19,32 +18,6 @@ class CategoryView(GenericAPIView):
     def get(self, request):
         category = Caregory.objects.all()
         serializer = CategorySerializers(category, many=True)
-        return Response(serializer.data)
-
-
-class ProductView(GenericAPIView):
-    serializer_class = ShopSerializers
-    pagination_class = PaginatorShop
-    queryset = Product.objects.filter(available=True)
-
-    def get(self, request):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        serializer_context = {'request': request}
-        serializer = self.serializer_class(
-            page, context=serializer_context, many=True)
-        data = self.get_paginated_response(serializer.data)
-        return data
-
-
-class ProductDetailView(GenericAPIView):
-    serializer_class = ProductDetailSerializers
-
-    def get(self, request, **kwargs):
-        pk = kwargs['id']
-        product = Product.objects.get(id=pk)
-        serializer = ProductDetailSerializers(product)
-
         return Response(serializer.data)
 
 
@@ -89,39 +62,7 @@ class MessageView(GenericAPIView):
         text = serializer.data['text']
         message = "*ЗАЯВКА С САЙТА* :" + "\n" + "*ИМЯ *: " + str(name) + "\n" + "*ТЕЛЕФОН* : " + str(phone) + '\n' + '*Писмо от клиента* :' + str(text)
         send_message(message)
-        return Response('Ok')
-
-
-class WindowView(GenericAPIView):
-    serializer_class = WindowSerializer
-    pagination_class = PaginatorShop
-
-    # def get(self, request):
-    #     window = Window.objects.all()
-    #     serializer = WindowSerializer(window, many=True)
-    #     # if serializer.is_valid():
-    #     #     pass
-    #     return Response(serializer.data)
-
-    def get_queryset(self):
-        return Window.objects.all()
-
-    def get(self, request):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        serializer_context = {'request': request}
-        serializer = self.serializer_class(
-            page, context=serializer_context, many=True)
-        data = self.get_paginated_response(serializer.data)
-        return data
-
-
-class ProductFilterView(ListAPIView):
-    queryset = Product.objects.filter(available=True)
-    serializer_class = ShopSerializers
-    filter_backends = [DjangoFilterBackend]
-    pagination_class = PaginatorShop
-    filterset_class = ProductFilter
+        return Response({'answer': 'Ok'}, status=status.HTTP_201_CREATED)
 
 
 class CalculatorWindowView(GenericAPIView):
@@ -130,32 +71,127 @@ class CalculatorWindowView(GenericAPIView):
     def post(self, request, **kwargs):
         serializer = CalculatorWindowSerializer(request.data)
         pk = kwargs['id']
-        window = Window.objects.get(id=pk)
-        window_model = WindowModel.objects.filter(category=window)
+        window_model = WindowModel.objects.filter(category_id=pk)
         length = serializer.data['length']
         width = serializer.data['width']
         count_window = serializer.data['count_window']
+        window_dict = {}
         total = 0.0
         for window in window_model:
             if window.choice == 'dn' or window.choice == 'wh':
                 if window.choice_window == 'true':
-                    total += (length+0.5) * float(window.price)
+                    total += (length+0.5) * float(window.product.price)
+                    window_dict[f'{window.product.category} {window.product.title}'] = length+0.5 * count_window
                 else:
-                    total += length * float(window.price)
+                    total += length * float(window.product.price)
+                    window_dict[f'{window.product.category} {window.product.title}'] = length * count_window
 
             elif window.choice == 'bk':
-                total += width * float(window.price) * 2
+                total += width * float(window.product.price) * 2
+                window_dict[f'{window.product.category} {window.product.title}'] = width * 2 * count_window
 
             elif window.choice == 'dl':
-                total += window.count * float(window.price)
+                total += 2 * float(window.product.price)
+                window_dict[f'{window.product.category} {window.product.title}'] = window.count * count_window
 
             else:
                 if window.choice_window == 'true':
-                    total += (length + 1) * float(window.price) * 2
+                    total += (length + 1) * float(window.product.price) * 2
+                    window_dict[f'{window.product.category} {window.product.title}'] = (length+1) * 2 * count_window
                 else:
-                    total += length * float(window.price) * 2
+                    total += length * float(window.product.price) * 2
+                    window_dict[f'{window.product.category} {window.product.title}'] = f'{length * 2 * count_window}'
+        window_dict['per window result'] = total
+        window_dict['resalt'] = total * count_window
+        return Response(window_dict)
 
-        resalt = total * count_window
-        return Response({'resalt': resalt, 'per window result': total})
+
+class ProductViewall(ListAPIView):
+    pagination_class = PaginatorShop
+    serializer_class = ProductSerializers
+
+    def get(self, request, **kwargs):
+        filters = {}
+        filters['window'] = Window.objects.filter(available=True, category_id=int(kwargs['category_id']))
+        filter_1 = filters['window'].exists()
+        filters['rack'] = Pedestal.objects.filter(category_id=int(kwargs['category_id']), available=True)
+        filter_2 = filters['rack'].exists()
+        filters['product'] = Product.objects.filter(category_id=int(kwargs['category_id']), available=True)
+        if filter_1 is True:
+            page = self.paginate_queryset(filters['window'])
+            filters['window'] = page
+        elif filter_2 is True:
+            page = self.paginate_queryset(filters['rack'])
+            filters['rack'] = page
+        else:
+            page = self.paginate_queryset(filters['product'])
+            filters['product'] = page
+        serializer_context = {'request': request}
+        serializer = self.serializer_class(
+            filters, context=serializer_context)
+        data = self.get_paginated_response(serializer.data)
+        if (serializer.data['window'] == [] and
+                serializer.data['rack'] == []
+                and serializer.data['product'] == []):
+            return Response({'answer': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return data
+
+
+class ProductDetailViewall(ListAPIView):
+    serializer_class = ProductDetailSerializersall
+
+    def get(self, request, **kwargs):
+        filters = {}
+        filters['window_detail'] = Window.objects.filter(title=kwargs['name'], available=True)
+        filters['rack_detail'] = Pedestal.objects.filter(title=kwargs['name'], available=True)
+        filters['product_detail'] = Product.objects.filter(title=kwargs['name'], available=True)
+        serializer = ProductDetailSerializersall(filters)
+        if(serializer.data['window_detail'] == [] and
+                serializer.data['rack_detail'] == []
+                and serializer.data['product_detail'] == []):
+            return Response({'answer': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(serializer.data)
+
+
+class ProductFilterView(ListAPIView):
+    serializer_class = ProductSerializers
+    pagination_class = PaginatorShop
+    filter_backends = [DjangoFilterBackend]
+
+    def filters(self, name, model, min_price, max_price, pk):
+        filters = {}
+        filters['model'] = model.objects.filter(category_id=pk, available=True)
+        print(filters['model'])
+        if filters['model'].exists() is True:
+            if name is None:
+                filters['model'] = filters['model'].filter(price__range=(min_price, max_price), category_id=pk, available=True)
+            else:
+                filters['model'] = filters['model'].filter(price__range=(min_price, max_price), title__icontains=name, category_id=pk, available=True)
+        return filters['model']
+
+    def get(self, request, **kwargs):
+        max_price = self.request.query_params.get('max_price')
+        min_price = self.request.query_params.get('min_price')
+        name = self.request.query_params.get('name')
+        pk = int(kwargs['category_id'])
+        filters = {}
+        if min_price is None:
+            min_price = 0
+        if max_price is None:
+            max_price = 10**10
+        if name is None:
+            filters['product'] = self.filters(name, Product, min_price, max_price, pk)
+            filters['window'] = Window.objects.filter(category_id=pk, available=True)
+            filters['rack'] = Pedestal.objects.filter(category_id=pk, available=True)
+        else:
+            filters['product'] = self.filters(name, Product, min_price, max_price, pk)
+            filters['window'] = Window.objects.filter(title__icontains=name, available=True, category_id=pk)
+            filters['rack'] = Pedestal.objects.filter(title__icontains=name, available=True, category_id=pk)
+        serializer = ProductSerializers(filters)
+        return Response(serializer.data)
+    filterset_class = ProductFilter
+
 
 

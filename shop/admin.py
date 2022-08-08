@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from .models import Product, Caregory, Partner, Review,  Window, WindowModel, PedestalModel, Pedestal
 from django.urls import path
 
@@ -13,16 +13,16 @@ class ChannelAdmin(admin.StackedInline):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', ]
     list_display_links = ['id', 'title']
-    # inlines = [ChannelAdmin, ]
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'category', 'created', 'available', 'price', 'amount']
-    list_display_links = ['name', 'category', 'id']
+    list_display = ['id', 'title', 'category', 'created', 'available', 'price', ]
+    list_display_links = ['title', 'category', 'id']
     list_filter = ['available', 'created']
     list_editable = ['price', 'available']
-    search_fields = ['name', ]
+    search_fields = ['title', ]
+    save_on_top = True
     change_list_template = "admin/model_change_list.html"
 
     def get_urls(self):
@@ -45,8 +45,8 @@ class ProductAdmin(admin.ModelAdmin):
 
 class WindowModelAdmin(admin.StackedInline):
     model = WindowModel
-    # search_fields = ['windowmodel__category', ]
-    fields = ('product', 'choice', 'measurement', ('count', 'price'), 'choice_window')
+    fields = ('product', 'choice', 'measurement', 'count', 'choice_window')
+    autocomplete_fields = ('product', )
     extra = 1
 
 
@@ -56,13 +56,13 @@ class WindowAdmin(admin.ModelAdmin):
     list_display_links = ['id', 'title']
     search_fields = ['title']
     save_on_top = True
-    # autocomplete_fields = ['WindowModel__product', 'title']
     inlines = [WindowModelAdmin, ]
 
 
 class PedestalModelAdmin(admin.StackedInline):
     model = PedestalModel
-    fields = ('poster', 'title', 'measurement', 'count', ('size_1', 'price_1', 'available'), ('size_2', 'price_2'))
+    fields = ('poster', 'title', 'choice', 'measurement',
+              ('size_1', 'price_pm', 'price_sht'), ('available', 'size_2', 'price_2'), 'choice_1')
     extra = 1
 
 
@@ -71,27 +71,8 @@ class PedestalAdmin(admin.ModelAdmin):
     list_display = ['id', 'title']
     list_display_links = ['id', 'title']
     search_fields = ['title', ]
-    # change_list_template = "admin/models_list.html"
     inlines = [PedestalModelAdmin, ]
-    # def get_urls(self):
-    #     urls = super(WindowAdmin, self).get_urls()
-    #     custom_urls = [
-    #         path('calculator/', self.process_calculator_btmp, name='process_calculator'),
-    #         # path('')
-    #     ]
-    #     return custom_urls + urls
-    #
-    # def process_calculator_btmp(self, request):
-    #     print(request)
-    #     if request.method == 'POST':
-    #         product = Product.objects.all()
-    #         print(product)
-    #         # percent = request.POST['text']
-    #         # for i in product:
-    #         #     total = float(i.price) * (1 + 100)
-    #         #     i.price = total
-    #         #     i.save()
-    #         return render(request, 'admin/calculator.html', {'product': product})
+    save_on_top = True
 
 
 @admin.register(Partner)
@@ -110,11 +91,4 @@ admin.site.site_title = 'Админ-панель сайта о Art-Deco'
 admin.site.site_header = 'Админ-панель сайта о Art-Deco'
 
 
-# @admin.register(WindowModel)
-# class WindowModelAdmin(admin.ModelAdmin):
-#     list_display = ['product', 'id']
-#
-#
-# @admin.register(Window_Model)
-# class Window_ModelAdmin(admin.ModelAdmin):
-#     list_display = ['window', 'window_model']
+
