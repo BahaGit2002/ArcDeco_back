@@ -15,5 +15,5 @@ urlpatterns = [
     # path('calculator_rack/<int:id>/', CalculatorRackView.as_view()),
     path('filter/<int:category_id>/', ProductFilterView.as_view()),
     path('product_list/<int:category_id>/', ProductViewall.as_view()),
-    path('product_detail<str:name>/', ProductDetailViewall.as_view())
+    path('product_detail/<str:name>/', ProductDetailViewall.as_view())
 ]

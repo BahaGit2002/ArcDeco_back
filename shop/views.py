@@ -12,22 +12,19 @@ from .serializers import (
 from .filters import ProductFilter
 
 
-class CategoryView(GenericAPIView):
+class CategoryView(ListAPIView):
     serializer_class = CategorySerializers
-
-    def get(self, request):
-        category = Caregory.objects.all()
-        serializer = CategorySerializers(category, many=True)
-        return Response(serializer.data)
+    queryset = Caregory.objects.all()
 
 
-class PartnerView(GenericAPIView):
+class PartnerView(ListAPIView):
+    queryset = Partner.objects.order_by('place')
     serializer_class = PartnerSerializers
 
-    def get(self, request):
-        partner = Partner.objects.all().order_by('place')
-        serializer = PartnerSerializers(partner, many=True)
-        return Response(serializer.data)
+    # def get(self, request):
+    #     partner = Partner.objects.all().order_by('place')
+    #     serializer = PartnerSerializers(partner, many=True)
+    #     return Response(serializer.data)
 
 
 class ReviewView(GenericAPIView):
@@ -109,6 +106,7 @@ class CalculatorWindowView(GenericAPIView):
 class ProductViewall(ListAPIView):
     pagination_class = PaginatorShop
     serializer_class = ProductSerializers
+    queryset = Window.objects.all()
 
     def get(self, request, **kwargs):
         filters = {}
@@ -138,8 +136,9 @@ class ProductViewall(ListAPIView):
             return data
 
 
-class ProductDetailViewall(ListAPIView):
+class ProductDetailViewall(GenericAPIView):
     serializer_class = ProductDetailSerializersall
+    queryset = Window.objects.all()
 
     def get(self, request, **kwargs):
         filters = {}
