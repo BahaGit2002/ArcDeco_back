@@ -18,7 +18,7 @@ class CategoryView(ListAPIView):
 
 
 class PartnerView(ListAPIView):
-    queryset = Partner.objects.order_by('place')
+    queryset = Partner.objects.all().order_by('place')
     serializer_class = PartnerSerializers
 
     # def get(self, request):
